@@ -1,1 +1,91 @@
+# Strategy QuANT
+
+Otevřený základ vlastní platformy typu StrategyQuant pro Forex, indexy, zlato, MT5 a
+Darwinex. První verze je záměrně auditovatelný výpočetní engine: každý signál, vstup,
+náklad, SL/TP a výsledek lze dohledat v tabulce obchodů.
+
+## Co už MVP umí
+
+- načíst běžný CSV/tab export z MT5 a převést čas do UTC,
+- zpracovat jeden symbol i portfolio více symbolů,
+- deterministicky generovat EMA crossover a N-bar breakout kandidáty,
+- provést barový backtest bez look-ahead bias,
+- vytvořit signál na close a vstoupit na open následujícího baru,
+- započítat spread a slippage,
+- určit velikost pozice podle rizika a ATR stop-lossu,
+- použít SL, TP, opačný signál a ochranu maximálního drawdownu,
+- spočítat výnos, CAGR, PF, drawdown, Sharpe, Sortino a win rate,
+- filtrovat a řadit kandidáty,
+- spustit OOS, Walk-Forward a bootstrap Monte Carlo kontrolu,
+- provozovat paper simulaci nad aktualizovaným CSV bez brokerských příkazů,
+- exportovat čitelnou JSON definici a MQL5 Expert Advisor,
+- zobrazit equity, výsledky a obchody ve Streamlit dashboardu.
+
+## Rychlý start ve Windows
+
+```powershell
+py -3.12 -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -e .
+strategy-quant demo --bars 1500 --export results
+streamlit run app.py
+```
+
+Dashboard bez vlastních souborů nabídne deterministická demo data pro EURUSD a GBPUSD.
+Pro vlastní test nahraj jeden MT5 CSV soubor na každý symbol. Pokud broker exportuje jiný
+čas než UTC, nastav jeho časovou zónu (například `Europe/Prague`).
+
+CLI nad jedním symbolem:
+
+```powershell
+strategy-quant research data\EURUSD_H1.csv --symbol EURUSD --timezone UTC --export results
+```
+
+Portfolio více symbolů:
+
+```powershell
+strategy-quant research data\EURUSD_H1.csv data\GBPUSD_H1.csv --timezone UTC --export results
+```
+
+## Předpoklady exekuce
+
+| Oblast | Pravidlo V1 |
+|---|---|
+| Signál | pouze z dokončeného baru |
+| Vstup | open následujícího baru |
+| Spread/slippage | pevné bps, nepříznivě na vstupu i výstupu |
+| SL i TP ve stejném baru | konzervativně SL první |
+| Gap přes SL/TP | plnění na open po nákladech |
+| Pozice | jedna na symbol |
+| Portfolio | počáteční kapitál rovnoměrně mezi symboly |
+| Drawdown guard | po překročení limitu se neotevírají nové pozice |
+| Paper režim | pouze Python simulace; žádné živé MT5 příkazy |
+
+## Struktura
+
+```text
+app.py                           Streamlit dashboard
+src/strategy_quant/data.py       MT5 CSV validace a normalizace
+src/strategy_quant/engine.py     event-driven bar backtest
+src/strategy_quant/generator.py  databanka kandidátů
+src/strategy_quant/portfolio.py  multi-symbol portfolio
+src/strategy_quant/robustness.py OOS, Walk-Forward, Monte Carlo
+src/strategy_quant/exporter.py   JSON + MQL5 export
+src/strategy_quant/paper.py      stavová CSV paper simulace
+tests/                           automatické regresní testy
+```
+
+## Důležité omezení V1
+
+MQL5 export je výchozí EA určený ke kompilaci a ověření v MetaEditoru a MT5 Strategy
+Testeru. Přesnost lotů, tick value, spreadu a obchodních hodin závisí na konkrétním
+brokerovi. Projekt zatím záměrně neposílá živé objednávky. Další milník doplní databanku
+výsledků, náhodné/genetické skládání pravidel, korelační portfolio a přesnou revalidaci
+proti MT5 Strategy Testeru.
+
+## Testy
+
+```powershell
+python -m unittest discover -s tests -v
+```
 
