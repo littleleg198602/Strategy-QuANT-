@@ -21,6 +21,21 @@ náklad, SL/TP a výsledek lze dohledat v tabulce obchodů.
 - exportovat čitelnou JSON definici a MQL5 Expert Advisor,
 - zobrazit equity, výsledky a obchody ve Streamlit dashboardu.
 
+## M1.1 Data Manager
+
+Projekt nově obsahuje samostatný datový základ pro Darwinex Zero / USD:
+
+- referenční universe XAUUSD, US500, NAS100, GER40 a US30,
+- přímé read-only načítání z lokálního MT5 na Windows,
+- požadavek 5 let M1 a 1 rok ticků,
+- streamované Parquet partitions, immutable manifesty a SQLite katalog,
+- broker metadata, stabilní SHA-256 identity a quality reporty,
+- přísnou kontrolu OHLC, ticků, duplicit, DST, coverage a neúplných barů,
+- M1 → M5/M15/M30/H1/H4/D1 přes Darwinex New York Close boundaries.
+
+Konektor nepřijímá heslo a nemá žádnou obchodní operaci. Používá již přihlášený
+terminál pouze pro metadata a historická data.
+
 ## Rychlý start ve Windows
 
 ```powershell
@@ -47,6 +62,37 @@ Portfolio více symbolů:
 strategy-quant research data\EURUSD_H1.csv data\GBPUSD_H1.csv --timezone UTC --export results
 ```
 
+### Stažení historie z MT5 ve Windows
+
+Nejdřív spusť a přihlas Darwinex Zero MT5. Potom zachyť broker profil:
+
+```powershell
+strategy-quant data terminals
+strategy-quant data profile-mt5 --terminal "C:\Program Files\Darwinex MetaTrader 5\terminal64.exe"
+```
+
+První bezpečný ověřovací import jednoho symbolu:
+
+```powershell
+strategy-quant data mt5-import --kind m1 --symbol XAUUSD --terminal "C:\Program Files\Darwinex MetaTrader 5\terminal64.exe"
+strategy-quant data list
+strategy-quant data validate <dataset-id>
+```
+
+Bez `--start` se pro M1 použije posledních 5 let. Tickový import používá poslední rok
+a může zabrat mnoho GB; spusť ho až po ověření M1:
+
+```powershell
+strategy-quant data mt5-import --kind ticks --symbol XAUUSD --terminal "C:\Program Files\Darwinex MetaTrader 5\terminal64.exe"
+```
+
+Vyšší timeframe vzniká vždy přímo z M1. Cestu k profilu vypíše příkaz
+`profile-mt5`:
+
+```powershell
+strategy-quant data resample <m1-dataset-id> --timeframe H1 --profile <profile.json>
+```
+
 ## Předpoklady exekuce
 
 | Oblast | Pravidlo V1 |
@@ -65,7 +111,10 @@ strategy-quant research data\EURUSD_H1.csv data\GBPUSD_H1.csv --timezone UTC --e
 
 ```text
 app.py                           Streamlit dashboard
-src/strategy_quant/data.py       MT5 CSV validace a normalizace
+src/strategy_quant/data.py       MT5 normalizace a session-aware resampling
+src/strategy_quant/mt5_data.py   read-only přímý MT5 collector
+src/strategy_quant/data_catalog.py immutable Parquet/SQLite katalog
+src/strategy_quant/data_manager.py aplikační datové služby
 src/strategy_quant/engine.py     event-driven bar backtest
 src/strategy_quant/generator.py  databanka kandidátů
 src/strategy_quant/portfolio.py  multi-symbol portfolio
@@ -79,13 +128,13 @@ tests/                           automatické regresní testy
 
 MQL5 export je výchozí EA určený ke kompilaci a ověření v MetaEditoru a MT5 Strategy
 Testeru. Přesnost lotů, tick value, spreadu a obchodních hodin závisí na konkrétním
-brokerovi. Projekt zatím záměrně neposílá živé objednávky. Další milník doplní databanku
-výsledků, náhodné/genetické skládání pravidel, korelační portfolio a přesnou revalidaci
-proti MT5 Strategy Testeru.
+brokerovi. Projekt zatím záměrně neposílá živé objednávky. Data Manager ještě potřebuje
+reálné referenční datasety z uživatelova Windows MT5, session/holiday calendar,
+inkrementální revision report a tick→M1 parity. Teprve potom se uzavře M1 a začne přesný
+backtest M2.
 
 ## Testy
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
-

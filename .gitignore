@@ -8,7 +8,6 @@ __pycache__/
 .DS_Store
 build/
 dist/
-data/*.csv
+/data/
 results/
 paper_state.json
-

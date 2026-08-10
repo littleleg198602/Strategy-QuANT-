@@ -4,14 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "strategy-quant"
-version = "0.1.0"
+version = "0.2.0"
 description = "Open, deterministic strategy research and MT5 export engine"
 readme = "README"
 requires-python = ">=3.11"
 dependencies = [
   "numpy>=1.26",
   "pandas>=2.1",
+  "pyarrow>=15",
   "streamlit>=1.35",
+  "MetaTrader5>=5.0; platform_system == 'Windows'",
+  "tzdata>=2024.1; platform_system == 'Windows'",
 ]
 
 [project.scripts]
@@ -22,4 +25,3 @@ where = ["src"]
 
 [tool.ruff]
 line-length = 100
-
