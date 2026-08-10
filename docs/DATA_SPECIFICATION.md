@@ -1,6 +1,6 @@
 # Specifikace Data Manageru
 
-Status: návrh 0.1 k odsouhlasení  
+Status: schváleno 0.2; implementační balík M1.1  
 Milník: M1  
 Normativní slova MUST, MUST NOT, SHOULD a MAY určují závaznost.
 
@@ -276,10 +276,41 @@ M1 je PASS pouze pokud:
 
 ## 14. První referenční datasety
 
-Pro začátek doporučeno:
+Schválený referenční profil:
 
-- EURUSD — nejjednodušší FX referenční symbol,
-- XAUUSD — kov s odlišným tick/contract profilem,
-- GER40 nebo NAS100 — index CFD se sessions a broker aliasem.
+- účetní měna: USD,
+- symboly: XAUUSD, US500, NAS100, GER40 a US30,
+- minimální historie: 5 let M1 a 1 rok ticků,
+- přímý import: lokální MT5 na Windows, pouze čtení,
+- velká historie: pouze lokálně, nikdy v GitHubu.
 
-Konečný výběr a účetní měna Darwinex profilu jsou otevřené body review.
+Darwinex nastavuje MetaTrader na New York Close: GMT+3 během amerického letního času
+a GMT+2 mimo něj. Profil proto reprezentuje serverový čas jako `America/New_York +
+420 minut`; nejde o evropské DST. Zdroj: [Darwinex Trading Hours in MetaTrader
+terminals](https://help.darwinex.com/metatrader-time).
+
+## 15. Stav implementace M1.1
+
+Implementovaný první vertikální řez obsahuje:
+
+- read-only `MetaTrader5` adaptér používající jen `symbols_get`, `symbol_info`,
+  `account_info`, `terminal_info`, `copy_rates_range` a `copy_ticks_range`,
+- streamování M1 po 31 dnech a ticků po dnech,
+- kanonická bar/tick schémata a quality checks Q01–Q06, Q13 a Q14,
+- verzované broker profily bez hesla a s hashovaným account/terminal fingerprintem,
+- deterministický content hash nezávislý na Parquet metadatech,
+- immutable Parquet partitions + JSON manifest/report + SQLite katalog,
+- přísný CSV/TSV import včetně DST a server wall-clock převodu,
+- M1 resampling do M5/M15/M30/H1/H4/D1 přes broker-local boundaries,
+- CLI `terminals`, `profile-mt5`, `mt5-import`, `import-file`, `list`, `show`,
+  `validate`, `resample` a `diff`.
+
+MetaQuotes výslovně uvádí, že časové rozsahy pro `copy_rates_range` a
+`copy_ticks_range` musí být zadány v UTC a že dostupnost barů je omezená historií
+staženou terminálem a nastavením Max bars in chart:
+
+- [copy_rates_range](https://www.mql5.com/en/docs/python_metatrader5/mt5copyratesrange_py)
+- [copy_ticks_range](https://www.mql5.com/en/docs/python_metatrader5/mt5copyticksrange_py)
+
+Pro úplné uzavření M1 ještě zbývá session/holiday calendar, inkrementální update s
+revision reportem, tick→M1 parity a reálné referenční datasety z uživatelova MT5.

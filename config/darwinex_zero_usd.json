@@ -1,0 +1,51 @@
+{
+  "profile_id": "darwinex-zero-usd",
+  "broker_id": "darwinex-zero",
+  "account_currency": "USD",
+  "timezone": "America/New_York",
+  "timezone_offset_minutes": 420,
+  "timezone_note": "Darwinex server wall clock is New York time plus 7 hours: GMT+3 during US DST and GMT+2 otherwise.",
+  "timezone_source": "https://help.darwinex.com/metatrader-time",
+  "history": {
+    "m1_years": 5,
+    "tick_years": 1,
+    "minimum_coverage": 0.98
+  },
+  "instruments": [
+    {
+      "instrument_id": "METAL.XAUUSD.CFD",
+      "asset_class": "metal",
+      "broker_symbol": "XAUUSD",
+      "display_name": "Gold / US Dollar",
+      "aliases": ["GOLD"]
+    },
+    {
+      "instrument_id": "INDEX.US.SP500.CFD",
+      "asset_class": "index_cfd",
+      "broker_symbol": "US500",
+      "display_name": "US 500",
+      "aliases": ["SP500"]
+    },
+    {
+      "instrument_id": "INDEX.US.NASDAQ100.CFD",
+      "asset_class": "index_cfd",
+      "broker_symbol": "NAS100",
+      "display_name": "US Nasdaq 100",
+      "aliases": ["NDX"]
+    },
+    {
+      "instrument_id": "INDEX.DE.DAX40.CFD",
+      "asset_class": "index_cfd",
+      "broker_symbol": "GER40",
+      "display_name": "Germany 40",
+      "aliases": ["GDAXI", "DE40"]
+    },
+    {
+      "instrument_id": "INDEX.US.DOW30.CFD",
+      "asset_class": "index_cfd",
+      "broker_symbol": "US30",
+      "display_name": "US Wall Street 30",
+      "aliases": ["WS30", "DJ30"]
+    }
+  ]
+}

@@ -127,15 +127,11 @@ M1.1 má dodat pouze datový základ:
 Do M1.1 nepatří generování nových strategií ani další rozšiřování současného
 backtestu.
 
-## Otevřená rozhodnutí před implementací M1
+## Schválená rozhodnutí pro M1
 
-Tato rozhodnutí se mají potvrdit při review PR:
-
-1. primární platforma běhu: Windows host s lokálním MT5 (doporučeno),
-2. účetní měna referenčního Darwinex profilu,
-3. první 3–5 referenčních symbolů pro parity data,
-4. minimální požadovaná délka M1 a tick historie,
-5. povolené ukládání surových broker dat v repozitáři versus pouze manifest/fixture.
-
-Výchozí bezpečný návrh: reálná velká historie se do GitHubu necommitne; commitnou se
-jen malé anonymní fixtures, schémata a manifesty.
+1. primární platforma běhu: Windows host s lokálním MT5,
+2. účetní měna referenčního Darwinex Zero profilu: USD,
+3. první symboly: XAUUSD, US500, NAS100, GER40 a US30,
+4. minimální historie: 5 let M1 a 1 rok ticků,
+5. reálná velká historie se do GitHubu necommitne; pouze anonymní fixtures, schémata
+   a manifesty.
