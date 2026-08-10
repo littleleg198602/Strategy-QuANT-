@@ -38,11 +38,23 @@ terminál pouze pro metadata a historická data.
 
 ## Rychlý start ve Windows
 
+1. Spusť a přihlas Darwinex Zero MetaTrader 5.
+2. V kořenové složce projektu dvakrát klikni na `SPUSTIT_STRATEGY_QUANT.bat`.
+3. Při prvním spuštění se automaticky vytvoří `.venv`, nainstalují závislosti a otevře
+   se Strategy QuANT v prohlížeči.
+4. V levém menu otevři **Data Manager**, ověř připojení a jako první stáhni
+   pouze **XAUUSD / M1**.
+
+Další spuštění probíhá stejným dvojklikem. Okno spouštěče ponech otevřené; aplikaci
+ukončíš klávesami `Ctrl+C`. Spouštěč nevyžaduje administrátorská práva a historie
+zůstává lokálně ve složce `data/catalog`.
+
+Ruční PowerShell postup pro vývojáře:
+
 ```powershell
 py -3.12 -m venv .venv
-.venv\Scripts\Activate.ps1
+.venv\\Scripts\\Activate.ps1
 python -m pip install -e .
-strategy-quant demo --bars 1500 --export results
 streamlit run app.py
 ```
 
